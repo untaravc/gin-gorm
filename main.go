@@ -6,4 +6,5 @@ import "gin-gorm/bootstrap"
 
 func main() {
 	bootstrap.BootstrapApp()
+	// air server --port 8080
 }
