@@ -4,6 +4,7 @@ import (
 	"gin-gorm/configs"
 	"gin-gorm/configs/app_config"
 	"gin-gorm/configs/cors_config"
+	"gin-gorm/configs/log_config"
 	"gin-gorm/database"
 	"gin-gorm/routes"
 	"log"
@@ -26,8 +27,9 @@ func BootstrapApp() {
 	// Add cors config
 	app.Use(cors_config.CorsConfig())
 
-	//
 	database.ConnectDatabase()
+
+	log_config.DefaultLogging()
 	routes.InitRoute(app)
 
 	app.Run(app_config.PORT)
