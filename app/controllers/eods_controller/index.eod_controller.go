@@ -1,10 +1,10 @@
 package eods_controller
 
 import (
+	"gin-gorm/app/models"
+	"gin-gorm/app/requests"
+	"gin-gorm/app/responses"
 	"gin-gorm/database"
-	"gin-gorm/models"
-	"gin-gorm/requests"
-	"gin-gorm/responses"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

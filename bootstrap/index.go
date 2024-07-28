@@ -22,8 +22,13 @@ func BootstrapApp() {
 	configs.InitConfig()
 
 	app := gin.Default()
+
+	// Add cors config
 	app.Use(cors_config.CorsConfig())
+
+	//
 	database.ConnectDatabase()
 	routes.InitRoute(app)
+
 	app.Run(app_config.PORT)
 }

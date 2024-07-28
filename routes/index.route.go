@@ -1,11 +1,11 @@
 package routes
 
 import (
+	"gin-gorm/app/controllers/base_controller"
+	"gin-gorm/app/controllers/eods_controller"
+	"gin-gorm/app/controllers/file_controller"
+	"gin-gorm/app/middleware"
 	"gin-gorm/configs/app_config"
-	"gin-gorm/controllers/base_controller"
-	"gin-gorm/controllers/eods_controller"
-	"gin-gorm/controllers/file_controller"
-	"gin-gorm/middleware"
 
 	"github.com/gin-gonic/gin"
 )

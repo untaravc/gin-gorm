@@ -2,7 +2,7 @@ package file_controller
 
 import (
 	"fmt"
-	"gin-gorm/utils"
+	"gin-gorm/app/utils"
 	"path/filepath"
 	"time"
 
