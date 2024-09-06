@@ -2,6 +2,7 @@ package routes
 
 import (
 	"gin-gorm/app/controllers/api/absensi_controller"
+	"gin-gorm/app/controllers/api/report_controller"
 	"gin-gorm/app/controllers/base_controller"
 	"gin-gorm/app/controllers/eods_controller"
 	"gin-gorm/app/controllers/file_controller"
@@ -31,6 +32,9 @@ func InitRoute(app *gin.Engine) {
 	eodRoute.PATCH("/eods/:id", eods_controller.Update)
 	eodRoute.DELETE("/eods/:id", eods_controller.Delete)
 
+	api := route.Group("/api", middleware.AuthMiddleware)
 	// Absensi
-	route.POST("/absensi", absensi_controller.Create)
+	api.POST("/absensi", absensi_controller.Create)
+
+	api.GET("/report-cabang", report_controller.Index)
 }

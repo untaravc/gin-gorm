@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Karyawan struct {
-	ID        *int       `json:"id"`
-	Name      *string    `json:"nama"`
-	CreatedAt *time.Time `json:"created_at"`
+	KaryawanId   int        `json:"karyawan_id" gorm:"primaryKey"`
+	KaryawanNama *string    `json:"karyawan_nama"`
+	CreatedAt    *time.Time `json:"created_at"`
 }
