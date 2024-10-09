@@ -22,11 +22,6 @@ type QueryFilter struct {
 	cabang_id int
 }
 
-type ReportMonth struct {
-	date string
-	// absensi models.Absensi
-}
-
 var data_base_absensi []models.Absensi
 var data_base_karyawan *[]models.Karyawan
 var data_base_cabang *models.Cabang
@@ -59,7 +54,9 @@ func getKaryawan(wg *sync.WaitGroup, ctx *gin.Context, data_absensi []models.Abs
 		karyawan_ids = append(karyawan_ids, kry.KaryawanId)
 	}
 
-	err_karyawan := database.DB.Table(TABLE_KARYAWAN).Where("karyawan_id IN ?", karyawan_ids).
+	err_karyawan := database.DB.
+		Table(TABLE_KARYAWAN).
+		Where("karyawan_id IN ?", karyawan_ids).
 		Find(&data_karyawan).Error
 
 	if err_karyawan != nil {
@@ -96,7 +93,12 @@ func endOfMonth(date time.Time) time.Time {
 }
 
 func Index(ctx *gin.Context) {
-	report_date := []map[string]string{}
+	ctx.JSON(200, gin.H{
+		"success": true,
+	})
+	ctx.Abort()
+
+	report_date := []models.DatePresensi{}
 
 	query := QueryFilter{}
 	if ctx.Query("from") != "" {
@@ -135,17 +137,9 @@ func Index(ctx *gin.Context) {
 			prefix = ""
 		}
 
-		newEntry := map[string]string{"date": query.from[0:7] + "-" + prefix + strconv.Itoa(i+1)}
+		newEntry := models.DatePresensi{Date: query.from[0:7] + "-" + prefix + strconv.Itoa(i+1)}
 		report_date = append(report_date, newEntry)
 	}
-	fmt.Print(report_date)
-
-	ctx.JSON(200, gin.H{
-		"last":   last_day,
-		"result": report_date,
-	})
-
-	return
 
 	var wg sync.WaitGroup
 
@@ -161,11 +155,41 @@ func Index(ctx *gin.Context) {
 	go getCabang(&wg, query, ctx)
 	wg.Wait()
 
+	list_karyawan := []models.KaryawanPresensi{}
+
+	for _, kry := range *data_base_karyawan {
+		new_list_karyawan := models.KaryawanPresensi{
+			KaryawanId: kry.KaryawanId,
+			// KaryawanNama: *kry.KaryawanNama,
+			PresensiList: report_date,
+		}
+
+		list_karyawan = append(list_karyawan, new_list_karyawan)
+	}
+
+	for l := range list_karyawan {
+		for p := range list_karyawan[l].PresensiList {
+
+			for _, presence := range data_base_absensi {
+				if presence.AbsensiCreatedAt.Format("2006-01-02") == list_karyawan[l].PresensiList[p].Date && presence.KaryawanId == list_karyawan[l].KaryawanId {
+					new_presence := models.Absensi{
+						AbsensiId:        presence.AbsensiId,
+						KaryawanId:       presence.KaryawanId,
+						CabangId:         presence.CabangId,
+						StatusAbsensi:    presence.StatusAbsensi,
+						AbsensiCreatedAt: presence.AbsensiCreatedAt,
+					}
+
+					list_karyawan[l].PresensiList[p].KaryawanAbsensi = new_presence
+				}
+			}
+		}
+	}
+
 	ctx.JSON(200, gin.H{
 		"success": true,
 		"query":   query.from,
-		"result":  data_base_karyawan,
-		"cabang":  data_base_cabang,
+		"result":  list_karyawan,
 	})
 }
 

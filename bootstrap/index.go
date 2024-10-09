@@ -27,6 +27,7 @@ func BootstrapApp() {
 	app.Use(cors_config.CorsConfig())
 
 	database.ConnectDatabase()
+	database.InitRedisClient()
 
 	// log_config.DefaultLogging()
 	routes.InitRoute(app)
