@@ -7,8 +7,9 @@ type Cabang struct {
 	CabangNama      string    `json:"cabang_nama"`
 	CabangNamaSpv   string    `json:"cabang_nama_spv"`
 	CabangKota      string    `json:"cabang_kota"`
-	CabangTimezona  string    `json:"cabang_timezone"`
+	CabangTimezone  string    `json:"cabang_timezone"`
 	CabangLatitude  float64   `json:"cabang_latitude"`
 	CabangLongitude float64   `json:"cabang_longitude"`
+	CabangType      string    `json:"cabang_type"`
 	CreatedAt       time.Time `json:"created_at" gorm:"autoCreateTime:true"`
 }

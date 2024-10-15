@@ -7,7 +7,7 @@ type Karyawan struct {
 	KaryawanJabatan *string `json:"karyawan_jabatan"`
 	CabangId        int     `json:"cabang_id"`
 	// KaryawanTanggalMasukKerja *string    `json:"karyawan_tanggal_masuk_kerja"`
-	// KaryawanStatus            *string    `json:"karyawan_status"`
+	KaryawanStatus string `json:"karyawan_status"`
 	// KaryawanToken             *string    `json:"karyawan_token"`
 	// LockLocation              *string    `json:"lock_location"`
 	// JabatanId                 *string    `json:"jabatan_id"`

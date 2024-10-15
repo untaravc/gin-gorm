@@ -24,16 +24,10 @@ func InitRoute(app *gin.Engine) {
 	// route.POST("/upload", file_controller.HandleUploadFile)
 	// route.GET("/test", test_controller.ConnectToRedis)
 
-	// eodRoute := route.Group("", middleware.AuthMiddleware)
-	// eodRoute.GET("/eods", eods_controller.GetAllData)
-	// eodRoute.GET("/eods/:id", eods_controller.GetById)
-	// eodRoute.POST("/eods", eods_controller.Store)
-	// eodRoute.PATCH("/eods/:id", eods_controller.Update)
-	// eodRoute.DELETE("/eods/:id", eods_controller.Delete)
-
 	api := route.Group("/api", middleware.AuthMiddleware)
 	// Absensi
 	api.POST("/check-in", absensi_controller.Checkin)
+	api.DELETE("/presence", absensi_controller.ClearToday)
 
 	api.GET("/report-cabang", middleware.AuthMiddleware, report_controller.Index)
 }
