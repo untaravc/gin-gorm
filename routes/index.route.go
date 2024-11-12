@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"gin-gorm/app/controllers/api/absensi_controller"
+	"gin-gorm/app/controllers/api/home_controller"
 	"gin-gorm/app/controllers/api/report_controller"
 	"gin-gorm/app/controllers/base_controller"
 	"gin-gorm/app/middleware"
@@ -24,10 +24,14 @@ func InitRoute(app *gin.Engine) {
 	// route.POST("/upload", file_controller.HandleUploadFile)
 	// route.GET("/test", test_controller.ConnectToRedis)
 
-	api := route.Group("/api", middleware.AuthMiddleware)
+	api := route.Group("/api")
 	// Absensi
-	api.POST("/check-in", absensi_controller.Checkin)
-	api.DELETE("/presence", absensi_controller.ClearToday)
+	// api.POST("/check-in", absensi_controller.Checkin)
+	// api.DELETE("/presence", absensi_controller.ClearToday)
 
 	api.GET("/report-cabang", middleware.AuthMiddleware, report_controller.Index)
+
+	// api.POST("/splash-screen", home_controller.SplashScreen) // ok
+	api.GET("/version-check", home_controller.VersionCheck)
+
 }

@@ -22,6 +22,5 @@ func ConnectDatabase() {
 	if errConnection != nil {
 		panic("Canot connetc db mysql")
 	}
-
 	log.Println("Connected to DATABASE")
 }

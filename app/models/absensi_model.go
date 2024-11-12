@@ -82,14 +82,14 @@ type AbsensiMaped struct {
 	AbsensiId        int              `json:"absensi_id"`
 	KaryawanId       int              `json:"karyawan_id"`
 	CabangId         int              `json:"cabang_id"`
-	ApprovalId       sql.NullInt32    `json:"approval_id"`
-	JumlahJamKerja   sql.NullInt32    `json:"jumlah_jam_kerja"`
-	JumlahJamLembur  sql.NullInt32    `json:"jumlah_jam_lembur"`
-	Keterlambatan    sql.NullInt32    `json:"keterlambatan"`
-	ApprovedDate     sql.NullTime     `json:"approved_date"`
-	ApprovedBy       sql.NullInt32    `json:"approved_by"`
-	AbsensiBy        sql.NullInt32    `json:"absensi_by"`
-	Documement       sql.NullString   `json:"document"`
+	ApprovalId       *int32           `json:"approval_id"`
+	JumlahJamKerja   *int32           `json:"jumlah_jam_kerja"`
+	JumlahJamLembur  *int32           `json:"jumlah_jam_lembur"`
+	Keterlambatan    *int32           `json:"keterlambatan"`
+	ApprovedDate     *time.Time       `json:"approved_date"`
+	ApprovedBy       *int32           `json:"approved_by"`
+	AbsensiBy        *int32           `json:"absensi_by"`
+	Documement       *string          `json:"document"`
 	AbsendiCreatedAt time.Time        `json:"absensi_created_at"`
 	AbsensiUpdatedAt time.Time        `json:"absensi_updated_at"`
 	Absensi          GeneralPresence  `json:"absensi"`

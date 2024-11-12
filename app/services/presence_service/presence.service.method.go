@@ -4,6 +4,7 @@ import (
 	"gin-gorm/app/models"
 	"gin-gorm/app/requests"
 	"gin-gorm/database"
+	"log"
 	"math"
 	"time"
 
@@ -77,10 +78,15 @@ func (s *PresenceService) CheckTodayPresence(data_karyawan models.Karyawan) *mod
 		Where("karyawan_id = ?", data_karyawan.KaryawanId).
 		First(&data_absensi).Error
 
-	if err_absensi != nil && err_absensi != gorm.ErrRecordNotFound {
+	if err_absensi != nil {
+		if err_absensi == gorm.ErrRecordNotFound {
+			log.Println("Record not found for karyawan_id:", data_karyawan.KaryawanId)
+			return nil
+		}
+		log.Println("Error retrieving presence:", err_absensi)
 		return nil
-
 	}
+
 	return data_absensi
 }
 
@@ -176,20 +182,58 @@ func (s *PresenceService) CheckLogout(ctx *gin.Context, data_absensi models.Abse
 }
 
 func (s *PresenceService) PresenceMap(dataAbsensi models.Absensi) models.AbsensiMaped {
+	var approval_id *int32
+	if dataAbsensi.ApprovalId.Valid {
+		approval_id = &dataAbsensi.ApprovalId.Int32
+	}
 
+	var jumlah_jam_kerja *int32
+	if dataAbsensi.JumlahJamKerja.Valid {
+		jumlah_jam_kerja = &dataAbsensi.JumlahJamKerja.Int32
+	}
+
+	var jumlah_jam_lembur *int32
+	if dataAbsensi.JumlahJamLembur.Valid {
+		jumlah_jam_lembur = &dataAbsensi.JumlahJamLembur.Int32
+	}
+
+	var keterlambatan *int32
+	if dataAbsensi.Keterlambatan.Valid {
+		keterlambatan = &dataAbsensi.Keterlambatan.Int32
+	}
+
+	var approved_date *time.Time
+	if dataAbsensi.ApprovedDate.Valid {
+		approved_date = &dataAbsensi.ApprovedDate.Time
+	}
+
+	var approved_by *int32
+	if dataAbsensi.ApprovedBy.Valid {
+		approved_by = &dataAbsensi.ApprovedBy.Int32
+	}
+
+	var absensi_by *int32
+	if dataAbsensi.AbsensiBy.Valid {
+		absensi_by = &dataAbsensi.AbsensiBy.Int32
+	}
+
+	var document *string
+	if dataAbsensi.Document.Valid {
+		document = &dataAbsensi.Document.String
+	}
 	absensi_maped := models.AbsensiMaped{
 		AbsensiStatus:    dataAbsensi.AbsensiStatus,
 		AbsensiId:        dataAbsensi.AbsensiId,
 		KaryawanId:       dataAbsensi.KaryawanId,
 		CabangId:         dataAbsensi.CabangId,
-		ApprovalId:       dataAbsensi.ApprovalId,
-		JumlahJamKerja:   dataAbsensi.JumlahJamKerja,
-		JumlahJamLembur:  dataAbsensi.JumlahJamLembur,
-		Keterlambatan:    dataAbsensi.Keterlambatan,
-		ApprovedDate:     dataAbsensi.ApprovedDate,
-		ApprovedBy:       dataAbsensi.ApprovedBy,
-		AbsensiBy:        dataAbsensi.AbsensiBy,
-		Documement:       dataAbsensi.Document,
+		ApprovalId:       approval_id,
+		JumlahJamKerja:   jumlah_jam_kerja,
+		JumlahJamLembur:  jumlah_jam_lembur,
+		Keterlambatan:    keterlambatan,
+		ApprovedDate:     approved_date,
+		ApprovedBy:       approved_by,
+		AbsensiBy:        absensi_by,
+		Documement:       document,
 		AbsendiCreatedAt: dataAbsensi.AbsensiCreatedAt,
 		AbsensiUpdatedAt: dataAbsensi.AbsensiUpdatedAt,
 		// Absensi:          s.GeneralPresence(dataReq),

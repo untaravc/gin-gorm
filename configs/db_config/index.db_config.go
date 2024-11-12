@@ -2,27 +2,37 @@ package db_config
 
 import "os"
 
-var DB_DRIVER = "mysql"
-var DB_HOST = "localhost"
-var DB_PORT = "3306"
-var DB_NAME = "tries_rcabs"
-var DB_USER = "root"
-var DB_PASSWORD = "mysql"
+var DB_DRIVER = ""
+var DB_HOST = ""
+var DB_PORT = ""
+var DB_NAME = ""
+var DB_USER = ""
+var DB_PASSWORD = ""
 
 func InitDatabaseConfig() {
-	portDbUser := os.Getenv("DB_USER")
+	portDbDriver := os.Getenv("DB_DRIVER")
+	portDbHost := os.Getenv("DB_HOST")
+	portDbPort := os.Getenv("DB_PORT")
 	portDbName := os.Getenv("DB_NAME")
+	portDbUser := os.Getenv("DB_USER")
 	portDbPassword := os.Getenv("DB_PASSWORD")
 
+	if portDbDriver != "" {
+		DB_DRIVER = portDbDriver
+	}
+	if portDbHost != "" {
+		DB_HOST = portDbHost
+	}
+	if portDbPort != "" {
+		DB_PORT = portDbPort
+	}
+	if portDbName != "" {
+		DB_NAME = portDbName
+	}
 	if portDbUser != "" {
 		DB_USER = portDbUser
 	}
-
-	if portDbUser != "" {
-		DB_NAME = portDbName
-	}
-
-	if portDbUser != "" {
+	if portDbPassword != "" {
 		DB_PASSWORD = portDbPassword
 	}
 }

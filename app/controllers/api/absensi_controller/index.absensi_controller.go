@@ -91,6 +91,7 @@ func Checkin(ctx *gin.Context) {
 
 	// Cek presensi hari ini
 	data_absensi := presenceService.CheckTodayPresence(data_karyawan)
+
 	is_need_approval := presenceService.IsNeedApproval(*dataReq)
 	approved := sql.NullBool{Bool: false, Valid: false}
 	if is_need_approval {
@@ -135,6 +136,7 @@ func Checkin(ctx *gin.Context) {
 		ctx.JSON(400, gin.H{
 			"status":  false,
 			"message": "Telah presensi masuk",
+			"result":  presenceService.PresenceMap(*data_absensi),
 		})
 		return
 	}
