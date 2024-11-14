@@ -14,6 +14,8 @@ import (
 func InitRoute(app *gin.Engine) {
 	route := app
 
+	route.Use(middleware.ErrorMiddleware())
+
 	route.Static(app_config.STATIC_ROUTE, app_config.STATIC_DIR)
 	route.Static("/css", "../templates/css")
 	route.LoadHTMLGlob("templates/pages/*.html")
