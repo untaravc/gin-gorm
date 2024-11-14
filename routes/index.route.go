@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"gin-gorm/app/controllers/api/auth_controller"
 	"gin-gorm/app/controllers/api/home_controller"
 	"gin-gorm/app/controllers/api/report_controller"
 	"gin-gorm/app/controllers/base_controller"
@@ -11,7 +12,6 @@ import (
 )
 
 func InitRoute(app *gin.Engine) {
-
 	route := app
 
 	route.Static(app_config.STATIC_ROUTE, app_config.STATIC_DIR)
@@ -25,6 +25,9 @@ func InitRoute(app *gin.Engine) {
 	// route.GET("/test", test_controller.ConnectToRedis)
 
 	api := route.Group("/api")
+	api.POST("/login", auth_controller.Login)
+	api.GET("/auth", middleware.AuthMiddleware, auth_controller.Auth)
+
 	// Absensi
 	// api.POST("/check-in", absensi_controller.Checkin)
 	// api.DELETE("/presence", absensi_controller.ClearToday)

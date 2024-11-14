@@ -3,7 +3,7 @@ package test_controller
 import (
 	"encoding/json"
 	"fmt"
-	"gin-gorm/app/models"
+	"gin-gorm/app/model"
 	"gin-gorm/database"
 	"net/http"
 	"time"
@@ -13,7 +13,7 @@ import (
 )
 
 func ConnectToRedis(ctx *gin.Context) {
-	auth_token := models.AuthToken{
+	auth_token := model.AuthToken{
 		KaryawanId:    1,
 		KaryawanNama:  "Untara Vivi Chahya",
 		KaryawanEmail: "",
@@ -28,7 +28,7 @@ func ConnectToRedis(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"msg": data})
 }
 
-func setAuthToken(ctx *gin.Context, key string, auth_token models.AuthToken) {
+func setAuthToken(ctx *gin.Context, key string, auth_token model.AuthToken) {
 
 	jsonStr, jsonErr := json.Marshal(auth_token)
 	if jsonErr != nil {

@@ -1,8 +1,8 @@
 package presence_service
 
 import (
-	"gin-gorm/app/models"
-	"gin-gorm/app/requests"
+	"gin-gorm/app/model"
+	"gin-gorm/app/request"
 	"gin-gorm/database"
 	"log"
 	"math"
@@ -22,7 +22,7 @@ var STATUS_OUT = []string{
 	"C", "O", "X", "S",
 }
 
-func (s *PresenceService) CheckDistance(cabang models.Cabang, absensi_request requests.AbsensiRequest) bool {
+func (s *PresenceService) CheckDistance(cabang model.Cabang, absensi_request request.AbsensiRequest) bool {
 	if absensi_request.Status != "T" {
 		distance := distance(cabang.CabangLatitude, cabang.CabangLongitude, absensi_request.Lat, absensi_request.Lng)
 		return distance <= 300
@@ -30,7 +30,7 @@ func (s *PresenceService) CheckDistance(cabang models.Cabang, absensi_request re
 	return true
 }
 
-func (s *PresenceService) CheckStatus(dataReq requests.AbsensiRequest) bool {
+func (s *PresenceService) CheckStatus(dataReq request.AbsensiRequest) bool {
 	statusList := []string{
 		"M",
 		"MA",
@@ -53,7 +53,7 @@ func (s *PresenceService) CheckStatus(dataReq requests.AbsensiRequest) bool {
 	return false
 }
 
-func (s *PresenceService) AdditionalHour(cabang models.Cabang) int {
+func (s *PresenceService) AdditionalHour(cabang model.Cabang) int {
 	switch cabang.CabangTimezone {
 	case "WITA":
 		return 1
@@ -64,7 +64,7 @@ func (s *PresenceService) AdditionalHour(cabang models.Cabang) int {
 	}
 }
 
-func (s *PresenceService) CheckTodayPresence(data_karyawan models.Karyawan) *models.Absensi {
+func (s *PresenceService) CheckTodayPresence(data_karyawan model.Karyawan) *model.Absensi {
 	today := time.Now()
 	formattedDate := today.Format("2006-01-02")
 
@@ -72,7 +72,7 @@ func (s *PresenceService) CheckTodayPresence(data_karyawan models.Karyawan) *mod
 	start, _ := time.Parse(layout, formattedDate)
 	end := start.Add(24 * time.Hour)
 
-	data_absensi := new(models.Absensi)
+	data_absensi := new(model.Absensi)
 	err_absensi := database.DB.Table(TABLE_ABSENSI).
 		Where("absensi_created_at >= ? AND absensi_created_at < ?", start, end).
 		Where("karyawan_id = ?", data_karyawan.KaryawanId).
@@ -90,7 +90,7 @@ func (s *PresenceService) CheckTodayPresence(data_karyawan models.Karyawan) *mod
 	return data_absensi
 }
 
-func (s *PresenceService) CheckManagement(data_cabang models.Cabang) bool {
+func (s *PresenceService) CheckManagement(data_cabang model.Cabang) bool {
 	management_ids := []int{
 		889, 15,
 	}
@@ -146,7 +146,7 @@ func isStringInArray(arr []string, target string) bool {
 	return false
 }
 
-func (s *PresenceService) IsNeedApproval(dataReq requests.AbsensiRequest) bool {
+func (s *PresenceService) IsNeedApproval(dataReq request.AbsensiRequest) bool {
 	switch dataReq.Status {
 	case "MEET":
 	case "T":
@@ -164,7 +164,7 @@ func (s *PresenceService) IsPresenceOut(status string) bool {
 	return isStringInArray(STATUS_OUT, status)
 }
 
-func (s *PresenceService) CheckLogout(ctx *gin.Context, data_absensi models.Absensi) {
+func (s *PresenceService) CheckLogout(ctx *gin.Context, data_absensi model.Absensi) {
 	// absensi regular belum checkout
 	if data_absensi.AbsensiCheckin.Valid && data_absensi.StatusAbsensi != "T" && data_absensi.AbsensiCheckout.Valid == false {
 		ctx.JSON(400, gin.H{
@@ -181,7 +181,7 @@ func (s *PresenceService) CheckLogout(ctx *gin.Context, data_absensi models.Abse
 	// sudah terisi semua
 }
 
-func (s *PresenceService) PresenceMap(dataAbsensi models.Absensi) models.AbsensiMaped {
+func (s *PresenceService) PresenceMap(dataAbsensi model.Absensi) model.AbsensiMaped {
 	var approval_id *int32
 	if dataAbsensi.ApprovalId.Valid {
 		approval_id = &dataAbsensi.ApprovalId.Int32
@@ -221,7 +221,7 @@ func (s *PresenceService) PresenceMap(dataAbsensi models.Absensi) models.Absensi
 	if dataAbsensi.Document.Valid {
 		document = &dataAbsensi.Document.String
 	}
-	absensi_maped := models.AbsensiMaped{
+	absensi_maped := model.AbsensiMaped{
 		AbsensiStatus:    dataAbsensi.AbsensiStatus,
 		AbsensiId:        dataAbsensi.AbsensiId,
 		KaryawanId:       dataAbsensi.KaryawanId,

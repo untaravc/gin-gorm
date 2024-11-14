@@ -1,7 +1,9 @@
 package middleware
 
 import (
-	"gin-gorm/app/models"
+	"encoding/json"
+	"gin-gorm/app/model"
+	"gin-gorm/app/response"
 	"gin-gorm/database"
 	"net/http"
 	"strings"
@@ -12,29 +14,46 @@ import (
 const TABLE_KARYAWAN = "karyawan"
 
 func AuthMiddleware(ctx *gin.Context) {
-
 	authHeader := ctx.GetHeader("Authorization")
 
 	// Check if the Authorization header is empty or not a Bearer token
 	if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is missing or invalid"})
-		ctx.Abort()
+		response.BaseResponse(ctx, http.StatusUnauthorized, false, "Authorization header is missing or invalid", nil)
 		return
 	}
 
 	token := strings.TrimPrefix(authHeader, "Bearer ")
 
-	data_auth := new(models.Karyawan)
+	redis_record, err := database.RedisGet(ctx, "rcabs_"+token)
+
+	var data_auth model.DataAuth
+	err = json.Unmarshal([]byte(redis_record), &data_auth)
+	if err == nil {
+		ctx.Set("data_auth", data_auth)
+		ctx.Next()
+		return
+	}
+
+	data_karyawan := new(model.Karyawan)
 	err_auth := database.DB.
 		Table(TABLE_KARYAWAN).
 		Where("karyawan_token = ?", token).
-		First(&data_auth).Error
+		First(&data_karyawan).Error
 
 	if err_auth != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Token Invalid"})
-		ctx.Abort()
+		response.BaseResponse(ctx, http.StatusUnauthorized, false, "Authorization token invalid", nil)
 		return
 	}
+
+	data_auth = model.DataAuth{
+		KaryawanId:    data_karyawan.KaryawanId,
+		KaryawanNama:  data_karyawan.KaryawanNama,
+		KaryawanEmail: data_karyawan.KaryawanEmail,
+		CabangId:      data_karyawan.CabangId,
+		Role:          data_karyawan.Role,
+	}
+
+	database.RedisSet(ctx, "rcabs_"+token, data_auth, 3600)
 
 	ctx.Set("data_auth", data_auth)
 	ctx.Next()

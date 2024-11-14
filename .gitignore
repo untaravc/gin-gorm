@@ -17,4 +17,5 @@
 vendor/*
 !vendor/vendor.json
 
+.idea/*
 /public/files/*

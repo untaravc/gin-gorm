@@ -1,9 +1,9 @@
 package eods_controller
 
 import (
-	"gin-gorm/app/models"
-	"gin-gorm/app/requests"
-	"gin-gorm/app/responses"
+	"gin-gorm/app/model"
+	"gin-gorm/app/request"
+	"gin-gorm/app/response"
 	"gin-gorm/database"
 	"net/http"
 
@@ -13,7 +13,7 @@ import (
 const TABLE = "eods"
 
 func GetAllData(ctx *gin.Context) {
-	data_list := new([]models.Eod)
+	data_list := new([]model.Eod)
 
 	err := database.DB.Table(TABLE).Find(&data_list).Error
 
@@ -32,7 +32,7 @@ func GetAllData(ctx *gin.Context) {
 
 func GetById(ctx *gin.Context) {
 	id := ctx.Param("id")
-	data := new(responses.EodResponse)
+	data := new(response.EodResponse)
 
 	err := database.DB.Table(TABLE).Where("id=?", id).Find(&data).Error
 
@@ -49,7 +49,7 @@ func GetById(ctx *gin.Context) {
 }
 
 func Store(ctx *gin.Context) {
-	dataReq := new(requests.EodRequest)
+	dataReq := new(request.EodRequest)
 
 	if errReq := ctx.ShouldBind(dataReq); errReq != nil {
 		ctx.JSON(400, gin.H{
@@ -58,7 +58,7 @@ func Store(ctx *gin.Context) {
 		return
 	}
 
-	store := new(models.Eod)
+	store := new(model.Eod)
 
 	store.Name = &dataReq.Name
 
@@ -78,7 +78,7 @@ func Store(ctx *gin.Context) {
 }
 
 func Update(ctx *gin.Context) {
-	dataReq := new(requests.EodRequest)
+	dataReq := new(request.EodRequest)
 
 	if errReq := ctx.ShouldBind(dataReq); errReq != nil {
 		ctx.JSON(400, gin.H{
@@ -88,7 +88,7 @@ func Update(ctx *gin.Context) {
 	}
 
 	id := ctx.Param("id")
-	data := new(models.Eod)
+	data := new(model.Eod)
 	errDb := database.DB.Table(TABLE).Where("id=?", id).Find(&data).Error
 
 	if errDb != nil {
@@ -99,7 +99,7 @@ func Update(ctx *gin.Context) {
 		return
 	}
 
-	update := new(models.Eod)
+	update := new(model.Eod)
 
 	update.Name = &dataReq.Name
 
@@ -116,7 +116,7 @@ func Update(ctx *gin.Context) {
 
 func Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
-	data := new(models.Eod)
+	data := new(model.Eod)
 	errDb := database.DB.Table(TABLE).Where("id=?", id).Find(&data).Error
 
 	if errDb != nil {
@@ -127,7 +127,7 @@ func Delete(ctx *gin.Context) {
 		return
 	}
 
-	errDelete := database.DB.Table(TABLE).Unscoped().Where("id=?", id).Delete(&models.Eod{}).Error
+	errDelete := database.DB.Table(TABLE).Unscoped().Where("id=?", id).Delete(&model.Eod{}).Error
 
 	if errDelete != nil {
 		ctx.JSON(500, gin.H{

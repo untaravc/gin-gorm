@@ -1,4 +1,4 @@
-package requests
+package request
 
 type AbsensiRequest struct {
 	Status     string  `json:"status" binding:"required"`

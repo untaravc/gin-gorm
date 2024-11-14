@@ -2,7 +2,7 @@ package report_controller
 
 import (
 	"fmt"
-	"gin-gorm/app/models"
+	"gin-gorm/app/model"
 	"gin-gorm/database"
 	"strconv"
 	"sync"
@@ -22,13 +22,13 @@ type QueryFilter struct {
 	cabang_id int
 }
 
-var data_base_absensi []models.Absensi
-var data_base_karyawan *[]models.Karyawan
-var data_base_cabang *models.Cabang
+var data_base_absensi []model.Absensi
+var data_base_karyawan *[]model.Karyawan
+var data_base_cabang *model.Cabang
 
 func getAbsensi(wg *sync.WaitGroup, query QueryFilter, ctx *gin.Context) {
 
-	data_absensi := new([]models.Absensi)
+	data_absensi := new([]model.Absensi)
 	err_absensi := database.DB.Table(TABLE_ABSENSI).Where("absensi_created_at > ?", query.from).
 		Where("cabang_id = ?", query.cabang_id).
 		Find(&data_absensi).Error
@@ -44,8 +44,8 @@ func getAbsensi(wg *sync.WaitGroup, query QueryFilter, ctx *gin.Context) {
 	data_base_absensi = *data_absensi
 }
 
-func getKaryawan(wg *sync.WaitGroup, ctx *gin.Context, data_absensi []models.Absensi) {
-	data_karyawan := new([]models.Karyawan)
+func getKaryawan(wg *sync.WaitGroup, ctx *gin.Context, data_absensi []model.Absensi) {
+	data_karyawan := new([]model.Karyawan)
 
 	unique_karyawan := getUniqueKaryawan(data_absensi)
 	karyawan_ids := make([]int, 0, len(unique_karyawan))
@@ -72,7 +72,7 @@ func getKaryawan(wg *sync.WaitGroup, ctx *gin.Context, data_absensi []models.Abs
 }
 
 func getCabang(wg *sync.WaitGroup, query QueryFilter, ctx *gin.Context) {
-	data_cabang := new(models.Cabang)
+	data_cabang := new(model.Cabang)
 	err_absensi := database.DB.Table(TABLE_CABANG).
 		Where("cabang_id = ?", query.cabang_id).
 		First(&data_cabang).Error
@@ -98,7 +98,7 @@ func Index(ctx *gin.Context) {
 	})
 	ctx.Abort()
 
-	report_date := []models.DatePresensi{}
+	report_date := []model.DatePresensi{}
 
 	query := QueryFilter{}
 	if ctx.Query("from") != "" {
@@ -137,7 +137,7 @@ func Index(ctx *gin.Context) {
 			prefix = ""
 		}
 
-		newEntry := models.DatePresensi{Date: query.from[0:7] + "-" + prefix + strconv.Itoa(i+1)}
+		newEntry := model.DatePresensi{Date: query.from[0:7] + "-" + prefix + strconv.Itoa(i+1)}
 		report_date = append(report_date, newEntry)
 	}
 
@@ -155,10 +155,10 @@ func Index(ctx *gin.Context) {
 	go getCabang(&wg, query, ctx)
 	wg.Wait()
 
-	list_karyawan := []models.KaryawanPresensi{}
+	list_karyawan := []model.KaryawanPresensi{}
 
 	for _, kry := range *data_base_karyawan {
-		new_list_karyawan := models.KaryawanPresensi{
+		new_list_karyawan := model.KaryawanPresensi{
 			KaryawanId: kry.KaryawanId,
 			// KaryawanNama: *kry.KaryawanNama,
 			PresensiList: report_date,
@@ -172,7 +172,7 @@ func Index(ctx *gin.Context) {
 
 			for _, presence := range data_base_absensi {
 				if presence.AbsensiCreatedAt.Format("2006-01-02") == list_karyawan[l].PresensiList[p].Date && presence.KaryawanId == list_karyawan[l].KaryawanId {
-					new_presence := models.Absensi{
+					new_presence := model.Absensi{
 						AbsensiId:        presence.AbsensiId,
 						KaryawanId:       presence.KaryawanId,
 						CabangId:         presence.CabangId,
@@ -193,14 +193,14 @@ func Index(ctx *gin.Context) {
 	})
 }
 
-func getUniqueKaryawan(absensi []models.Absensi) []models.Absensi {
-	uniqueMap := make(map[int]models.Absensi)
+func getUniqueKaryawan(absensi []model.Absensi) []model.Absensi {
+	uniqueMap := make(map[int]model.Absensi)
 
 	for _, abs := range absensi {
 		uniqueMap[abs.KaryawanId] = abs
 	}
 
-	uniqueList := make([]models.Absensi, 0, len(uniqueMap))
+	uniqueList := make([]model.Absensi, 0, len(uniqueMap))
 	for _, abs := range uniqueMap {
 		uniqueList = append(uniqueList, abs)
 	}

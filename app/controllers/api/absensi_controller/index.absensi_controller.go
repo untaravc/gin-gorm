@@ -2,8 +2,8 @@ package absensi_controller
 
 import (
 	"database/sql"
-	"gin-gorm/app/models"
-	"gin-gorm/app/requests"
+	"gin-gorm/app/model"
+	"gin-gorm/app/request"
 	"gin-gorm/app/services/auth_service"
 	"gin-gorm/app/services/presence_service"
 	"gin-gorm/database"
@@ -22,7 +22,7 @@ func Checkin(ctx *gin.Context) {
 	authService := auth_service.NewAuthService()
 
 	// Validasi Request
-	dataReq := new(requests.AbsensiRequest)
+	dataReq := new(request.AbsensiRequest)
 	errReq := ctx.ShouldBind(dataReq)
 	if errReq != nil {
 		ctx.JSON(400, gin.H{
@@ -43,7 +43,20 @@ func Checkin(ctx *gin.Context) {
 	}
 
 	// Get data karyawan login via auth_user
-	data_karyawan := authService.GetAuth(ctx)
+	data_auth := authService.GetAuth(ctx)
+
+	data_karyawan := model.Karyawan{}
+	err_karyawan := database.DB.Table(TABLE_KARYAWAN).
+		Where("karyawan_id = ?", data_auth.KaryawanId).
+		First(&data_karyawan)
+
+	if err_karyawan != nil {
+		ctx.JSON(400, gin.H{
+			"status": false,
+			"result": "Karyawan tidak ditemukan",
+		})
+		return
+	}
 
 	// Cek status karyawan
 	if data_karyawan.KaryawanStatus != "aktif" {
@@ -54,7 +67,7 @@ func Checkin(ctx *gin.Context) {
 		return
 	}
 
-	data_cabang := new(models.Cabang)
+	data_cabang := new(model.Cabang)
 	err_cabang := database.DB.Table(TABLE_CABANG).
 		Where("cabang_id = ?", data_karyawan.CabangId).
 		First(&data_cabang).Error
@@ -100,7 +113,7 @@ func Checkin(ctx *gin.Context) {
 
 	// Jika belum presensi, maka akan membuat absensi
 	if data_absensi == nil {
-		store := new(models.Absensi)
+		store := new(model.Absensi)
 		store.KaryawanId = data_karyawan.KaryawanId
 		store.CabangId = data_karyawan.CabangId
 		store.AbsensiCheckin = sql.NullTime{Time: time.Now(), Valid: true}
@@ -226,7 +239,7 @@ func ClearToday(ctx *gin.Context) {
 	start, _ := time.Parse(layout, formattedDate)
 	end := start.Add(24 * time.Hour)
 
-	data_absensi := new(models.Absensi)
+	data_absensi := new(model.Absensi)
 	err_absensi := database.DB.Table(TABLE_ABSENSI).
 		Where("absensi_created_at >= ? AND absensi_created_at < ?", start, end).
 		Where("karyawan_id = ?", data_karyawan.KaryawanId).

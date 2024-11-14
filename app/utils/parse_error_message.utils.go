@@ -1,15 +1,15 @@
 package utils
 
 import (
-	"gin-gorm/app/models"
+	"gin-gorm/app/model"
 	"strings"
 )
 
-func ParseErrorMessages(errorString string) []models.ApiError {
+func ParseErrorMessages(errorString string) []model.ApiError {
 	// Split the string by newline to separate each error message
 	errorMessages := strings.Split(errorString, "\n")
 
-	var parsedErrors []models.ApiError
+	var parsedErrors []model.ApiError
 
 	for _, errorMessage := range errorMessages {
 		if errorMessage == "" {
@@ -35,7 +35,7 @@ func ParseErrorMessages(errorString string) []models.ApiError {
 
 		// Add the field name and description to the map
 
-		parsedErrors = append(parsedErrors, models.ApiError{Field: fieldName, Msg: description})
+		parsedErrors = append(parsedErrors, model.ApiError{Field: fieldName, Msg: description})
 	}
 
 	return parsedErrors

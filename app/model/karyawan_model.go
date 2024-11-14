@@ -1,4 +1,4 @@
-package models
+package model
 
 type Karyawan struct {
 	KaryawanId      int     `json:"karyawan_id" gorm:"primaryKey"`
@@ -16,7 +16,7 @@ type Karyawan struct {
 	// CreatedAt                 *time.Time `json:"created_at"`
 
 	// karyawan_username
-	// karyawan_password
+	KaryawanPassword *string `json:"karyawan_password"`
 	// nik
 	// karyawan_nama
 	// karyawan_foto
@@ -24,7 +24,7 @@ type Karyawan struct {
 	// agama
 	// karyawan_tempat_lahir
 	// karyawan_tanggal_lahir
-	// karyawan_email
+	KaryawanEmail *string `json:"karyawan_email"`
 	// karyawan_no_hp
 	// karyawan_alamat
 	// karyawan_kota
@@ -34,7 +34,7 @@ type Karyawan struct {
 	// status_pernikahan
 	// status_pegawai
 	// karyawan_status
-	// karyawan_token
+	KaryawanToken *string `json:"karyawan_token"`
 	// karyawan_handphone_code
 	// karyawan_device_name
 	// karyawan_reg_id
@@ -62,7 +62,15 @@ type Karyawan struct {
 	// late_count
 	// sync_at
 	// cabang_id
-	// role
+	Role *string `json:"role"`
 	// deleted_at
 	// parent_id
+}
+
+type DataAuth struct {
+	KaryawanId    int     `json:"karyawan_id" gorm:"primaryKey"`
+	KaryawanNama  *string `json:"karyawan_nama"`
+	KaryawanEmail *string `json:"karyawan_email"`
+	CabangId      int     `json:"cabang_id"`
+	Role          *string `json:"role"`
 }

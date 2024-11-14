@@ -1,4 +1,4 @@
-package responses
+package response
 
 type EodResponse struct {
 	ID   *int    `json:"id"`
