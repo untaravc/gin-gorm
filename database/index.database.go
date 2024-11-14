@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"gin-gorm/app/model"
 	"gin-gorm/configs/db_config"
 	"log"
 
@@ -22,5 +23,17 @@ func ConnectDatabase() {
 	if errConnection != nil {
 		panic("Canot connetc db mysql")
 	}
+
 	log.Println("Connected to DATABASE")
+
+	data_karyawan := new(model.Karyawan)
+	err := DB.Table("karyawan").
+		Where("karyawan_email = ?", "tries1@mail.com").
+		First(&data_karyawan).Error
+
+	if err != nil {
+		log.Println("ERR DB karyawan")
+	} else {
+		log.Println("Success DB karyawan" + *data_karyawan.KaryawanNama)
+	}
 }
