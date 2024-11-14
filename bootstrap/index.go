@@ -4,6 +4,7 @@ import (
 	"gin-gorm/configs"
 	"gin-gorm/configs/app_config"
 	"gin-gorm/configs/cors_config"
+	"gin-gorm/configs/log_config"
 	"gin-gorm/database"
 	"gin-gorm/routes"
 	"log"
@@ -29,7 +30,7 @@ func BootstrapApp() {
 	database.ConnectDatabase()
 	database.InitRedisClient()
 
-	// log_config.DefaultLogging()
+	log_config.DefaultLogging()
 	routes.InitRoute(app)
 
 	app.Run(app_config.PORT)
