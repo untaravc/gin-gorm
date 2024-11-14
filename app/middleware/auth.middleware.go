@@ -24,11 +24,11 @@ func AuthMiddleware(ctx *gin.Context) {
 
 	token := strings.TrimPrefix(authHeader, "Bearer ")
 
-	redis_record, err := database.RedisGet(ctx, "rcabs_"+token)
+	redis_record, _ := database.RedisGet(ctx, "rcabs_"+token)
 
 	var data_auth model.DataAuth
-	err = json.Unmarshal([]byte(redis_record), &data_auth)
-	if err == nil {
+	err_unmarsal := json.Unmarshal([]byte(redis_record), &data_auth)
+	if err_unmarsal == nil {
 		ctx.Set("data_auth", data_auth)
 		ctx.Next()
 		return
