@@ -10,8 +10,8 @@ type TypeResponse struct {
 	Result  interface{} `json:"result"`
 }
 
-func BaseResponse(c *gin.Context, httpStatus int, success bool, message string, result interface{}) {
-	c.JSON(httpStatus, TypeResponse{
+func BaseResponse(ctx *gin.Context, httpStatus int, success bool, message string, result interface{}) {
+	ctx.AbortWithStatusJSON(httpStatus, TypeResponse{
 		Success: success,
 		Message: message,
 		Result:  result,

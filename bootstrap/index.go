@@ -22,6 +22,9 @@ func BootstrapApp() {
 
 	configs.InitConfig()
 
+	if app_config.GIN_MODE == "release" {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	app := gin.Default()
 
 	// Add cors config

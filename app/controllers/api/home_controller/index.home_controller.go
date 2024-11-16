@@ -1,6 +1,8 @@
 package home_controller
 
 import (
+	"gin-gorm/app/response"
+	"net/http"
 	"strconv"
 	"time"
 
@@ -8,13 +10,9 @@ import (
 )
 
 func SplashScreen(ctx *gin.Context) {
-	ctx.JSON(200, gin.H{
-		"status": true,
-		"text":   "success",
-		"result": gin.H{
-			"latest_version": 2,
-			"time":           time.Now().Format("15:04:05"),
-		},
+	response.BaseResponse(ctx, http.StatusOK, true, "success", gin.H{
+		"latest_version": 2,
+		"time":           time.Now().Format("15:04:05"),
 	})
 }
 
@@ -23,12 +21,8 @@ func VersionCheck(ctx *gin.Context) {
 
 	app_version_int, _ := strconv.Atoi(app_version)
 
-	ctx.JSON(200, gin.H{
-		"status": true,
-		"text":   "success",
-		"result": gin.H{
-			"app_version": app_version_int,
-			"api_version": 4,
-		},
+	response.BaseResponse(ctx, http.StatusOK, true, "success", gin.H{
+		"app_version": app_version_int,
+		"api_version": 3,
 	})
 }

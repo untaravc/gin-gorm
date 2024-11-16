@@ -77,6 +77,56 @@ func Auth(ctx *gin.Context) {
 	response.BaseResponse(ctx, http.StatusOK, true, "OK", data_auth)
 }
 
+func UpdatePassword(ctx *gin.Context) {
+	var body request.UpdatePasswordRequest
+
+	// Validasi Request
+	if err := ctx.ShouldBind(&body); err != nil {
+		response.BaseResponse(ctx, http.StatusBadRequest, false, "error", "Email atau Password Tidak Sesuai")
+		return
+	}
+
+	// Get Data Auth from token
+	authService := auth_service.NewAuthService()
+	data_auth := authService.GetAuth(ctx)
+
+	// Get Karyawan by email
+	login_request := request.LoginRequest{
+		Email:    *data_auth.KaryawanEmail,
+		Password: body.OldPassword,
+	}
+
+	karyawan, err := getKaryawan(login_request)
+	if err != nil {
+		response.BaseResponse(ctx, http.StatusBadRequest, false, "error", "Karyawan tidak terdaftar")
+		return
+	}
+
+	// Validasi Password
+	if !checkPassword(karyawan.KaryawanPassword, body.OldPassword) {
+		response.BaseResponse(ctx, http.StatusBadRequest, false, "error", "Password Lama Salah")
+		return
+	}
+
+	// Update Password
+	hashed, err := hashPassword(body.NewPassword)
+	if err != nil {
+		response.BaseResponse(ctx, http.StatusBadRequest, false, "error", "GAGAL")
+		return
+	}
+
+	err = database.DB.Table("karyawan").
+		Where("karyawan_email = ?", *data_auth.KaryawanEmail).
+		Update("karyawan_password", hashed).Error
+
+	if err != nil {
+		response.BaseResponse(ctx, http.StatusBadRequest, false, "error", "Gagal memperbarui password")
+		return
+	} else {
+		response.BaseResponse(ctx, http.StatusOK, true, "success", nil)
+	}
+}
+
 func checkPassword(hashedPassword *string, password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte((*hashedPassword)), []byte(password))
 	return err == nil

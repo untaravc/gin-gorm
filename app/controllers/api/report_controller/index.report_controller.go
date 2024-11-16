@@ -3,7 +3,9 @@ package report_controller
 import (
 	"fmt"
 	"gin-gorm/app/model"
+	"gin-gorm/app/response"
 	"gin-gorm/database"
+	"net/http"
 	"strconv"
 	"sync"
 	"time"
@@ -26,19 +28,14 @@ var data_base_absensi []model.Absensi
 var data_base_karyawan *[]model.Karyawan
 var data_base_cabang *model.Cabang
 
-func getAbsensi(wg *sync.WaitGroup, query QueryFilter, ctx *gin.Context) {
-
+func getAbsensi(wg *sync.WaitGroup, query QueryFilter, ctx *gin.Context) ([]model.Absensi, error) {
 	data_absensi := new([]model.Absensi)
 	err_absensi := database.DB.Table(TABLE_ABSENSI).Where("absensi_created_at > ?", query.from).
 		Where("cabang_id = ?", query.cabang_id).
 		Find(&data_absensi).Error
 
 	if err_absensi != nil {
-		ctx.JSON(500, gin.H{
-			"success": false,
-			"result":  "ERR absensi",
-		})
-		return
+		return []model.Absensi{}, err_absensi
 	}
 	wg.Done()
 	data_base_absensi = *data_absensi
@@ -93,11 +90,6 @@ func endOfMonth(date time.Time) time.Time {
 }
 
 func Index(ctx *gin.Context) {
-	ctx.JSON(200, gin.H{
-		"success": true,
-	})
-	ctx.Abort()
-
 	report_date := []model.DatePresensi{}
 
 	query := QueryFilter{}
@@ -140,6 +132,9 @@ func Index(ctx *gin.Context) {
 		newEntry := model.DatePresensi{Date: query.from[0:7] + "-" + prefix + strconv.Itoa(i+1)}
 		report_date = append(report_date, newEntry)
 	}
+
+	response.BaseResponse(ctx, http.StatusOK, true, "success", report_date)
+	return
 
 	var wg sync.WaitGroup
 

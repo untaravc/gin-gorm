@@ -1,16 +1,14 @@
 package base_controller
 
 import (
+	"gin-gorm/app/response"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func Index(ctx *gin.Context) {
-	ctx.JSON(200, gin.H{
-		"success": true,
-		"message": "go web app",
-	})
+	response.BaseResponse(ctx, http.StatusOK, true, "OK", "Hello World")
 }
 
 func View(ctx *gin.Context) {
